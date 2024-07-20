@@ -14,10 +14,12 @@ func init() {
 }
 
 func main() {
-	commandStream.AddToBack("lastCommand")
+	commandStream.AddToFront("front")
+	commandStream.AddToFront("front")
 	commandStream.AddToFront("firstCommand")
+	commandStream.AddToBack("lastCommand")
+	commandStream.PrintValues()
 
 	dataStack.PushFromInputStream()
-
 	dataStack.PopToOutputStream()
 }
