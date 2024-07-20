@@ -1,27 +1,23 @@
 package main
 
-import "fmt"
-import "tuwien.ac.at/calculator/v2/src/streams"
+import (
+	"tuwien.ac.at/calculator/v2/src/state"
+)
 
 var registerSet = make(map[rune]interface{})
-var operationMode int64
-var dataStack = make([]interface{}, 8)
-
-var commandStream = streams.NewStream()
-var inputStream = streams.NewStream()
-var outputStream = streams.NewStream()
+var dataStack state.Stack
+var commandStream state.CommandStream
+var operationMode int64 = 0
 
 func init() {
-	operationMode = 0
-
-	//runs once before main, should use to set the registers
-	registerSet['a'] = "firstCommand"
+	registerSet['a'] = "'"
 }
 
 func main() {
-	fmt.Println("hi world", operationMode)
 	commandStream.AddToBack("lastCommand")
 	commandStream.AddToFront("firstCommand")
 
-	fmt.Println(commandStream)
+	dataStack.PushFromInputStream()
+
+	dataStack.PopToOutputStream()
 }
