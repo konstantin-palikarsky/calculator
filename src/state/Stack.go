@@ -1,12 +1,7 @@
 package state
 
 import (
-	"bufio"
 	"errors"
-	"fmt"
-	"os"
-	"strconv"
-	"strings"
 )
 
 type Stack []interface{}
@@ -15,33 +10,8 @@ func (stack *Stack) Push(value interface{}) {
 	*stack = append(*stack, value)
 }
 
-func (stack *Stack) PushFromInputStream() {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Calculator input: ")
-	text, _ := reader.ReadString('\n')
-	text = strings.TrimSuffix(text, "\r\n")
-
-	stack.Push(determineType(text))
-}
-
-func determineType(token string) interface{} {
-	if val, err := strconv.Atoi(token); err == nil {
-		return val
-	}
-	if val, err := strconv.ParseFloat(token, 64); err == nil {
-		return val
-	}
-	return token
-}
-
-func (stack *Stack) PopToOutputStream() {
-	if val, err := stack.Pop(); err == nil {
-		fmt.Print(val)
-	}
-}
-
 func (stack *Stack) Pop() (interface{}, error) {
-	if stack.isEmpty() {
+	if stack.IsEmpty() {
 		return nil, errors.New("popping empty stack")
 	}
 
@@ -51,6 +21,17 @@ func (stack *Stack) Pop() (interface{}, error) {
 	return element, nil
 }
 
-func (stack *Stack) isEmpty() bool {
+func (stack *Stack) IsEmpty() bool {
 	return len(*stack) == 0
+}
+
+func (stack *Stack) Size() int {
+	return len(*stack)
+}
+
+func (stack *Stack) Peek() (interface{}, error) {
+	if stack.IsEmpty() {
+		return nil, errors.New("peeking empty stack")
+	}
+	return (*stack)[len(*stack)-1], nil
 }
