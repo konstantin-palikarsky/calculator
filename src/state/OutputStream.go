@@ -1,4 +1,4 @@
-package main
+package state
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 
 type OutputStream struct{}
 
-func InitializeOutputStream() *OutputStream {
+func NewOutputStream() *OutputStream {
 	return &OutputStream{}
 }
 
