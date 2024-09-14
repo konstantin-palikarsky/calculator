@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"tuwien.ac.at/calculator/v2/src/calculator"
+	"tuwien.ac.at/calculator/v2/src/types"
 )
 
 type ExecutionMode struct {
-	Calculator *calculator.Calculator
+	Calculator types.Calculator
 }
 
-func NewExecutionMode(calc *calculator.Calculator) *ExecutionMode {
+func NewExecutionMode(calc types.Calculator) *ExecutionMode {
 	return &ExecutionMode{
 		Calculator: calc,
 	}
@@ -20,14 +20,14 @@ func NewExecutionMode(calc *calculator.Calculator) *ExecutionMode {
 func (e *ExecutionMode) Execute(command rune) error {
 	switch {
 	case command >= '0' && command <= '9':
-		e.Calculator.DataStack.Push(int(command - '0'))
-		e.Calculator.OperationMode = -1
+		e.Calculator.GetDataStack().Push(int(command - '0'))
+		e.Calculator.SetOperationMode(-1)
 	case command == '.':
-		e.Calculator.DataStack.Push(0.0)
-		e.Calculator.OperationMode = -2
+		e.Calculator.GetDataStack().Push(0.0)
+		e.Calculator.SetOperationMode(-2)
 	case command == '(':
-		e.Calculator.DataStack.Push("")
-		e.Calculator.OperationMode = 1
+		e.Calculator.GetDataStack().Push("")
+		e.Calculator.SetOperationMode(1)
 	case command >= 'A' && command <= 'Z' || command >= 'a' && command <= 'z':
 		return e.pushRegisterContent(command)
 	case command == '=', command == '<', command == '>':
@@ -51,7 +51,7 @@ func (e *ExecutionMode) Execute(command rune) error {
 	case command == '\\':
 		return e.executeApplyLater()
 	case command == '#':
-		e.Calculator.DataStack.Push(e.Calculator.DataStack.Size())
+		e.Calculator.GetDataStack().Push(e.Calculator.GetDataStack().Size())
 	case command == '\'':
 		return e.executeReadInput()
 	case command == '"':
@@ -63,24 +63,24 @@ func (e *ExecutionMode) Execute(command rune) error {
 }
 
 func (e *ExecutionMode) pushRegisterContent(register rune) error {
-	value, exists := e.Calculator.Registers[register]
+	value, exists := e.Calculator.GetRegisters()[register]
 	if !exists {
 		return fmt.Errorf("register %c not found", register)
 	}
-	e.Calculator.DataStack.Push(value)
+	e.Calculator.GetDataStack().Push(value)
 	return nil
 }
 
 func (e *ExecutionMode) executeComparison(op rune) error {
-	if e.Calculator.DataStack.Size() < 2 {
+	if e.Calculator.GetDataStack().Size() < 2 {
 		return fmt.Errorf("stack underflow: not enough operands for comparison")
 	}
 
-	b, err := e.Calculator.DataStack.Pop()
+	b, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
-	a, err := e.Calculator.DataStack.Pop()
+	a, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (e *ExecutionMode) executeComparison(op rune) error {
 		return err
 	}
 
-	e.Calculator.DataStack.Push(result)
+	e.Calculator.GetDataStack().Push(result)
 	return nil
 }
 
@@ -166,15 +166,15 @@ func boolToInt(b bool) int {
 }
 
 func (e *ExecutionMode) executeArithmetic(op rune) error {
-	if e.Calculator.DataStack.Size() < 2 {
+	if e.Calculator.GetDataStack().Size() < 2 {
 		return fmt.Errorf("stack underflow: not enough operands for arithmetic operation")
 	}
 
-	b, err := e.Calculator.DataStack.Pop()
+	b, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
-	a, err := e.Calculator.DataStack.Pop()
+	a, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
@@ -184,7 +184,7 @@ func (e *ExecutionMode) executeArithmetic(op rune) error {
 		return err
 	}
 
-	e.Calculator.DataStack.Push(result)
+	e.Calculator.GetDataStack().Push(result)
 	return nil
 }
 
@@ -252,15 +252,15 @@ func (e *ExecutionMode) performArithmetic(a, b interface{}, op rune) (interface{
 }
 
 func (e *ExecutionMode) executeLogic(op rune) error {
-	if e.Calculator.DataStack.Size() < 2 {
+	if e.Calculator.GetDataStack().Size() < 2 {
 		return fmt.Errorf("stack underflow: not enough operands for logic operation")
 	}
 
-	b, err := e.Calculator.DataStack.Pop()
+	b, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
-	a, err := e.Calculator.DataStack.Pop()
+	a, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
@@ -269,7 +269,7 @@ func (e *ExecutionMode) executeLogic(op rune) error {
 	bInt, bIsInt := b.(int)
 
 	if !aIsInt || !bIsInt {
-		e.Calculator.DataStack.Push("")
+		e.Calculator.GetDataStack().Push("")
 		return nil
 	}
 
@@ -283,16 +283,16 @@ func (e *ExecutionMode) executeLogic(op rune) error {
 		return fmt.Errorf("unknown logic operation: %c", op)
 	}
 
-	e.Calculator.DataStack.Push(result)
+	e.Calculator.GetDataStack().Push(result)
 	return nil
 }
 
 func (e *ExecutionMode) executeNullCheck() error {
-	if e.Calculator.DataStack.IsEmpty() {
+	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
 
-	value, err := e.Calculator.DataStack.Pop()
+	value, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
@@ -313,47 +313,47 @@ func (e *ExecutionMode) executeNullCheck() error {
 		}
 	}
 
-	e.Calculator.DataStack.Push(result)
+	e.Calculator.GetDataStack().Push(result)
 	return nil
 }
 
 func (e *ExecutionMode) executeNegation() error {
-	if e.Calculator.DataStack.IsEmpty() {
+	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
 
-	value, err := e.Calculator.DataStack.Pop()
+	value, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
 
 	switch v := value.(type) {
 	case int:
-		e.Calculator.DataStack.Push(-v)
+		e.Calculator.GetDataStack().Push(-v)
 	case float64:
-		e.Calculator.DataStack.Push(-v)
+		e.Calculator.GetDataStack().Push(-v)
 	default:
-		e.Calculator.DataStack.Push("")
+		e.Calculator.GetDataStack().Push("")
 	}
 
 	return nil
 }
 
 func (e *ExecutionMode) executeIntegerConversion() error {
-	if e.Calculator.DataStack.IsEmpty() {
+	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
 
-	value, err := e.Calculator.DataStack.Pop()
+	value, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
 
 	switch v := value.(type) {
 	case float64:
-		e.Calculator.DataStack.Push(int(v))
+		e.Calculator.GetDataStack().Push(int(v))
 	case int, string:
-		e.Calculator.DataStack.Push("")
+		e.Calculator.GetDataStack().Push("")
 	default:
 		return fmt.Errorf("unexpected type for integer conversion")
 	}
@@ -362,53 +362,53 @@ func (e *ExecutionMode) executeIntegerConversion() error {
 }
 
 func (e *ExecutionMode) executeCopy() error {
-	if e.Calculator.DataStack.IsEmpty() {
+	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
 
-	n, err := e.Calculator.DataStack.Pop()
+	n, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
 
 	nInt, ok := n.(int)
-	if !ok || nInt <= 0 || nInt > e.Calculator.DataStack.Size() {
+	if !ok || nInt <= 0 || nInt > e.Calculator.GetDataStack().Size() {
 		return nil
 	}
 
-	value, err := e.Calculator.DataStack.Get(nInt - 1)
+	value, err := e.Calculator.GetDataStack().Get(nInt - 1)
 	if err != nil {
 		return err
 	}
 
-	e.Calculator.DataStack.Push(value)
+	e.Calculator.GetDataStack().Push(value)
 	return nil
 }
 
 func (e *ExecutionMode) executeDelete() error {
-	if e.Calculator.DataStack.IsEmpty() {
+	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
 
-	n, err := e.Calculator.DataStack.Pop()
+	n, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
 
 	nInt, ok := n.(int)
-	if !ok || nInt <= 0 || nInt > e.Calculator.DataStack.Size() {
+	if !ok || nInt <= 0 || nInt > e.Calculator.GetDataStack().Size() {
 		return nil
 	}
 
-	return e.Calculator.DataStack.Remove(nInt - 1)
+	return e.Calculator.GetDataStack().Remove(nInt - 1)
 }
 
 func (e *ExecutionMode) executeApplyImmediately() error {
-	if e.Calculator.DataStack.IsEmpty() {
+	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
 
-	value, err := e.Calculator.DataStack.Pop()
+	value, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
@@ -418,16 +418,16 @@ func (e *ExecutionMode) executeApplyImmediately() error {
 		return nil
 	}
 
-	e.Calculator.CommandStream.AddToFront(str)
+	e.Calculator.GetCommandStream().AddToFront(str)
 	return nil
 }
 
 func (e *ExecutionMode) executeApplyLater() error {
-	if e.Calculator.DataStack.IsEmpty() {
+	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
 
-	value, err := e.Calculator.DataStack.Pop()
+	value, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
@@ -437,36 +437,36 @@ func (e *ExecutionMode) executeApplyLater() error {
 		return nil
 	}
 
-	e.Calculator.CommandStream.AddToBack(str)
+	e.Calculator.GetCommandStream().AddToBack(str)
 	return nil
 }
 
 func (e *ExecutionMode) executeReadInput() error {
-	input, err := e.Calculator.InputStream.ReadLine()
+	input, err := e.Calculator.GetInputStream().ReadLine()
 	if err != nil {
 		return err
 	}
 
 	if intValue, err := strconv.Atoi(input); err == nil {
-		e.Calculator.DataStack.Push(intValue)
+		e.Calculator.GetDataStack().Push(intValue)
 		return nil
 	}
 
 	if floatValue, err := strconv.ParseFloat(input, 64); err == nil {
-		e.Calculator.DataStack.Push(floatValue)
+		e.Calculator.GetDataStack().Push(floatValue)
 		return nil
 	}
 
-	e.Calculator.DataStack.Push(input)
+	e.Calculator.GetDataStack().Push(input)
 	return nil
 }
 
 func (e *ExecutionMode) executeWriteOutput() error {
-	if e.Calculator.DataStack.IsEmpty() {
+	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
 
-	value, err := e.Calculator.DataStack.Pop()
+	value, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
@@ -482,6 +482,6 @@ func (e *ExecutionMode) executeWriteOutput() error {
 	default:
 		return fmt.Errorf("unexpected type for output")
 	}
-	e.Calculator.OutputStream.WriteLine(output)
+	e.Calculator.GetOutputStream().WriteLine(output)
 	return nil
 }

@@ -2,25 +2,25 @@ package operations
 
 import (
 	"fmt"
-	"tuwien.ac.at/calculator/v2/src/calculator"
+	"tuwien.ac.at/calculator/v2/src/types"
 )
 
 type IntegerConstructionMode struct {
-	Calculator *calculator.Calculator
+	Calculator types.Calculator
 }
 
-func NewIntegerConstructionMode(calc *calculator.Calculator) *IntegerConstructionMode {
+func NewIntegerConstructionMode(calc types.Calculator) *IntegerConstructionMode {
 	return &IntegerConstructionMode{
 		Calculator: calc,
 	}
 }
 
 func (i *IntegerConstructionMode) Execute(command rune) error {
-	if i.Calculator.DataStack.IsEmpty() {
+	if i.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow in integer construction mode")
 	}
 
-	top, err := i.Calculator.DataStack.Peek()
+	top, err := i.Calculator.GetDataStack().Peek()
 	if err != nil {
 		return err
 	}
@@ -33,14 +33,14 @@ func (i *IntegerConstructionMode) Execute(command rune) error {
 	switch {
 	case command >= '0' && command <= '9':
 		newValue := intValue*10 + int(command-'0')
-		i.Calculator.DataStack.Pop()
-		i.Calculator.DataStack.Push(newValue)
+		i.Calculator.GetDataStack().Pop()
+		i.Calculator.GetDataStack().Push(newValue)
 	case command == '.':
-		i.Calculator.DataStack.Pop()
-		i.Calculator.DataStack.Push(float64(intValue))
-		i.Calculator.OperationMode = -2
+		i.Calculator.GetDataStack().Pop()
+		i.Calculator.GetDataStack().Push(float64(intValue))
+		i.Calculator.SetOperationMode(-2)
 	default:
-		i.Calculator.OperationMode = 0
+		i.Calculator.SetOperationMode(0)
 	}
 
 	return nil

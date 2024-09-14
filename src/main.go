@@ -14,20 +14,20 @@ func main() {
 
 	calc := calculator.NewCalculator(cs, ds, is, os)
 
-	initialCommand, ok := calc.Registers['a'].(string)
+	initialCommand, ok := calc.GetRegisters()['a'].(string)
 	if !ok {
-		calc.OutputStream.WriteLine("Error: Invalid content in register 'a'")
+		calc.GetOutputStream().WriteLine("Error: Invalid content in register 'a'")
 		return
 	}
-	calc.CommandStream.AddToBack(initialCommand)
+	calc.GetCommandStream().AddToBack(initialCommand)
 
 	calc.Run()
 
 	for {
-		calc.OutputStream.WriteLine("Enter a command (or 'quit' to exit):")
-		input, err := calc.InputStream.ReadLine()
+		calc.GetOutputStream().WriteLine("Enter a command (or 'quit' to exit):")
+		input, err := calc.GetInputStream().ReadLine()
 		if err != nil {
-			calc.OutputStream.WriteLine(fmt.Sprintf("Error reading input: %v", err))
+			calc.GetOutputStream().WriteLine(fmt.Sprintf("Error reading input: %v", err))
 			continue
 		}
 
@@ -35,7 +35,9 @@ func main() {
 			break
 		}
 
-		calc.CommandStream.AddToBack(input)
+		calc.GetCommandStream().AddToBack(input)
+		fmt.Printf("Command stream after input: %s\n")
+		calc.GetCommandStream().PrintContents()
 		calc.Run()
 	}
 }

@@ -34,3 +34,7 @@ func (cs *CommandStream) Pop() (interface{}, error) {
 func (cs *CommandStream) IsEmpty() bool {
 	return len(cs.commands) == 0
 }
+
+func (cs *CommandStream) PrintContents() string {
+	return fmt.Sprintf("%v", cs.commands)
+}

@@ -3,23 +3,23 @@ package calculator
 import (
 	"fmt"
 	"tuwien.ac.at/calculator/v2/src/operations"
-	"tuwien.ac.at/calculator/v2/src/state"
+	"tuwien.ac.at/calculator/v2/src/types"
 )
 
 type Calculator struct {
-	CommandStream           *state.CommandStream
-	DataStack               *state.Stack
+	CommandStream           types.CommandStream
+	DataStack               types.Stack
 	Registers               map[rune]interface{}
 	OperationMode           int64
-	InputStream             *state.InputStream
-	OutputStream            *state.OutputStream
-	ExecutionMode           *operations.ExecutionMode
-	IntegerConstructionMode *operations.IntegerConstructionMode
-	DecimalConstructionMode *operations.DecimalConstructionMode
-	StringConstructionMode  *operations.StringConstructionMode
+	InputStream             types.InputStream
+	OutputStream            types.OutputStream
+	ExecutionMode           types.ExecutionMode
+	IntegerConstructionMode types.ConstructionMode
+	DecimalConstructionMode types.ConstructionMode
+	StringConstructionMode  types.ConstructionMode
 }
 
-func NewCalculator(cs *state.CommandStream, ds *state.Stack, is *state.InputStream, os *state.OutputStream) *Calculator {
+func NewCalculator(cs types.CommandStream, ds types.Stack, is types.InputStream, os types.OutputStream) *Calculator {
 	calc := &Calculator{
 		CommandStream: cs,
 		DataStack:     ds,
@@ -77,36 +77,30 @@ func (c *Calculator) ExecuteCommand(command rune) error {
 	}
 }
 
-func main() {
-	cs := state.NewCommandStream()
-	ds := state.NewStack()
-	is := state.NewInputStream()
-	os := state.NewOutputStream()
+func (c *Calculator) GetDataStack() types.Stack {
+	return c.DataStack
+}
 
-	calc := NewCalculator(cs, ds, is, os)
+func (c *Calculator) GetRegisters() map[rune]interface{} {
+	return c.Registers
+}
 
-	initialCommand, ok := calc.Registers['a'].(string)
-	if !ok {
-		calc.OutputStream.WriteLine("Error: Invalid content in register 'a'")
-		return
-	}
-	calc.CommandStream.AddToBack(initialCommand)
+func (c *Calculator) GetOperationMode() int64 {
+	return c.OperationMode
+}
 
-	calc.Run()
+func (c *Calculator) SetOperationMode(mode int64) {
+	c.OperationMode = mode
+}
 
-	for {
-		calc.OutputStream.WriteLine("Enter a command (or 'quit' to exit):")
-		input, err := calc.InputStream.ReadLine()
-		if err != nil {
-			calc.OutputStream.WriteLine(fmt.Sprintf("Error reading input: %v", err))
-			continue
-		}
+func (c *Calculator) GetInputStream() types.InputStream {
+	return c.InputStream
+}
 
-		if input == "quit" {
-			break
-		}
+func (c *Calculator) GetOutputStream() types.OutputStream {
+	return c.OutputStream
+}
 
-		calc.CommandStream.AddToBack(input)
-		calc.Run()
-	}
+func (c *Calculator) GetCommandStream() types.CommandStream {
+	return c.CommandStream
 }
