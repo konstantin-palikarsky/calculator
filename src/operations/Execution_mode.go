@@ -185,6 +185,7 @@ func (e *ExecutionMode) executeArithmetic(op rune) error {
 	}
 
 	e.Calculator.GetDataStack().Push(result)
+	fmt.Printf("Result of %v %c %v = %v\n", a, op, b, result)
 	return nil
 }
 

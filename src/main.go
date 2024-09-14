@@ -21,6 +21,7 @@ func main() {
 	}
 	calc.GetCommandStream().AddToBack(initialCommand)
 
+	fmt.Printf("Initial command stream contents: %s\n", calc.GetCommandStream().PrintContents())
 	calc.Run()
 
 	for {
@@ -36,8 +37,9 @@ func main() {
 		}
 
 		calc.GetCommandStream().AddToBack(input)
-		fmt.Printf("Command stream after input: %s\n")
-		calc.GetCommandStream().PrintContents()
+		fmt.Printf("Command stream after input: %s\n", calc.GetCommandStream().PrintContents())
+
 		calc.Run()
+		fmt.Printf("Command stream after Run(): %s\n", calc.GetCommandStream().PrintContents())
 	}
 }
