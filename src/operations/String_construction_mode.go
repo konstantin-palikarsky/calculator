@@ -16,6 +16,7 @@ func NewStringConstructionMode(calc types.Calculator) *StringConstructionMode {
 }
 
 func (s *StringConstructionMode) Execute(command rune) error {
+	fmt.Printf("ExecutingString command: %c\n", command)
 	if s.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow in string construction mode")
 	}

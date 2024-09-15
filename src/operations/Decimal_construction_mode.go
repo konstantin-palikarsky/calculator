@@ -16,6 +16,7 @@ func NewDecimalConstructionMode(calc types.Calculator) *DecimalConstructionMode 
 	}
 }
 func (d *DecimalConstructionMode) Execute(command rune) error {
+	fmt.Printf("ExecutingDec command: %c\n", command)
 	if d.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow in decimal construction mode")
 	}

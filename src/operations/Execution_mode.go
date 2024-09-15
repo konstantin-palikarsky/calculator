@@ -18,6 +18,7 @@ func NewExecutionMode(calc types.Calculator) *ExecutionMode {
 }
 
 func (e *ExecutionMode) Execute(command rune) error {
+	fmt.Printf("Executing command: %c\n", command)
 	switch {
 	case command >= '0' && command <= '9':
 		e.Calculator.GetDataStack().Push(int(command - '0'))

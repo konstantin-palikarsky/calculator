@@ -16,6 +16,7 @@ func NewIntegerConstructionMode(calc types.Calculator) *IntegerConstructionMode 
 }
 
 func (i *IntegerConstructionMode) Execute(command rune) error {
+	fmt.Printf("ExecutingInt command: %c\n", command)
 	if i.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow in integer construction mode")
 	}
@@ -41,6 +42,7 @@ func (i *IntegerConstructionMode) Execute(command rune) error {
 		i.Calculator.SetOperationMode(-2)
 	default:
 		i.Calculator.SetOperationMode(0)
+		i.Calculator.GetCommandStream().AddToFront(string(command))
 	}
 
 	return nil
