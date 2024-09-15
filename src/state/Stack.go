@@ -53,7 +53,27 @@ func (stack *Stack) Remove(n int) error {
 	if n <= 0 || n > stack.Size() {
 		return fmt.Errorf("invalid index: %d", n)
 	}
+	fmt.Printf("Removing element at index %d\n", n)
+	fmt.Printf("Stack before removal: %v\n", stack.String())
 	index := len(*stack) - n
 	*stack = append((*stack)[:index], (*stack)[index+1:]...)
+	fmt.Printf("Stack after removal: %v\n", stack.String())
 	return nil
+}
+
+func (stack *Stack) String() string {
+	if stack.IsEmpty() {
+		return "[]"
+	}
+
+	var result string
+	result += "["
+	for i, v := range *stack {
+		if i > 0 {
+			result += ", "
+		}
+		result += fmt.Sprintf("%v", v)
+	}
+	result += "]"
+	return result
 }

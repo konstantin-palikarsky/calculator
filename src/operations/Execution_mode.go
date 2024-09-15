@@ -369,7 +369,7 @@ func (e *ExecutionMode) executeIntegerConversion() error {
 	return nil
 }
 
-func (e *ExecutionMode) executeCopy() error {
+/*func (e *ExecutionMode) executeCopy() error {
 	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
@@ -391,26 +391,46 @@ func (e *ExecutionMode) executeCopy() error {
 
 	e.Calculator.GetDataStack().Push(value)
 	return nil
+}*/
+
+func (e *ExecutionMode) executeCopy() error {
+	if e.Calculator.GetDataStack().IsEmpty() {
+		return fmt.Errorf("stack underflow")
+	}
+	n, err := e.Calculator.GetDataStack().Pop()
+	if err != nil {
+		return err
+	}
+	nInt, ok := n.(int)
+	if !ok || nInt <= 0 || nInt > e.Calculator.GetDataStack().Size() {
+		e.Calculator.GetDataStack().Push(n) // Push back the invalid n
+		return nil                          // No effect if n is not a valid integer
+	}
+	value, err := e.Calculator.GetDataStack().Get(e.Calculator.GetDataStack().Size() - nInt + 1)
+	if err != nil {
+		e.Calculator.GetDataStack().Push(n) // Push back n if there's an error
+		return err
+	}
+	e.Calculator.GetDataStack().Push(n)     // Push back n
+	e.Calculator.GetDataStack().Push(value) // Push the copied value
+	return nil
 }
 
 func (e *ExecutionMode) executeDelete() error {
 	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")
 	}
-
 	n, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
-
 	nInt, ok := n.(int)
 	if !ok || nInt <= 0 || nInt > e.Calculator.GetDataStack().Size() {
-		return nil
+		e.Calculator.GetDataStack().Push(n) // Push back the invalid n
+		return nil                          // No effect if n is not a valid integer
 	}
-
-	return e.Calculator.GetDataStack().Remove(nInt - 1)
+	return e.Calculator.GetDataStack().Remove(nInt)
 }
-
 func (e *ExecutionMode) executeApplyImmediately() error {
 	if e.Calculator.GetDataStack().IsEmpty() {
 		return fmt.Errorf("stack underflow")

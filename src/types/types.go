@@ -18,6 +18,7 @@ type Stack interface {
 	Size() int
 	Get(n int) (interface{}, error)
 	Remove(n int) error
+	String() string
 }
 
 type InputStream interface {
