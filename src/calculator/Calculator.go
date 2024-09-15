@@ -44,6 +44,7 @@ func (c *Calculator) InitializeRegisters() {
 		c.Registers[ch] = ""
 	}
 	c.Registers['a'] = "Welcome to the Postfix Calculator!"
+	c.GetCommandStream().AddToBack("a\"")
 }
 
 func (c *Calculator) Run() {

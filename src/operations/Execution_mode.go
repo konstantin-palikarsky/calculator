@@ -166,6 +166,8 @@ func boolToInt(b bool) int {
 }
 
 func (e *ExecutionMode) executeArithmetic(op rune) error {
+	fmt.Printf("Executing arithmetic operation: %c\n", op)
+
 	if e.Calculator.GetDataStack().Size() < 2 {
 		return fmt.Errorf("stack underflow: not enough operands for arithmetic operation")
 	}
@@ -174,10 +176,13 @@ func (e *ExecutionMode) executeArithmetic(op rune) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Popped b: %v\n", b)
+
 	a, err := e.Calculator.GetDataStack().Pop()
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Popped a: %v\n", a)
 
 	result, err := e.performArithmetic(a, b, op)
 	if err != nil {
@@ -186,6 +191,7 @@ func (e *ExecutionMode) executeArithmetic(op rune) error {
 
 	e.Calculator.GetDataStack().Push(result)
 	fmt.Printf("Result of %v %c %v = %v\n", a, op, b, result)
+	fmt.Printf("Pushed result to stack: %v\n", result)
 	return nil
 }
 
