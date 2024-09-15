@@ -403,16 +403,16 @@ func (e *ExecutionMode) executeCopy() error {
 	}
 	nInt, ok := n.(int)
 	if !ok || nInt <= 0 || nInt > e.Calculator.GetDataStack().Size() {
-		e.Calculator.GetDataStack().Push(n) // Push back the invalid n
-		return nil                          // No effect if n is not a valid integer
+		e.Calculator.GetDataStack().Push(n)
+		return nil
 	}
 	value, err := e.Calculator.GetDataStack().Get(e.Calculator.GetDataStack().Size() - nInt + 1)
 	if err != nil {
-		e.Calculator.GetDataStack().Push(n) // Push back n if there's an error
+		e.Calculator.GetDataStack().Push(n)
 		return err
 	}
-	e.Calculator.GetDataStack().Push(n)     // Push back n
-	e.Calculator.GetDataStack().Push(value) // Push the copied value
+	e.Calculator.GetDataStack().Push(n)
+	e.Calculator.GetDataStack().Push(value)
 	return nil
 }
 
@@ -426,8 +426,8 @@ func (e *ExecutionMode) executeDelete() error {
 	}
 	nInt, ok := n.(int)
 	if !ok || nInt <= 0 || nInt > e.Calculator.GetDataStack().Size() {
-		e.Calculator.GetDataStack().Push(n) // Push back the invalid n
-		return nil                          // No effect if n is not a valid integer
+		e.Calculator.GetDataStack().Push(n)
+		return nil
 	}
 	return e.Calculator.GetDataStack().Remove(nInt)
 }
