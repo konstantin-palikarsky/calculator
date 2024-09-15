@@ -12,7 +12,6 @@ func TestExecutionMode(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		// Arithmetic operations
 		{"Addition", "5 3 +", 8},
 		{"Subtraction", "10 4 -", 6},
 		{"Multiplication", "3 4 *", 12},
@@ -24,22 +23,21 @@ func TestExecutionMode(t *testing.T) {
 		{"Float Addition", "3.5 2.7 +", 6.2},
 		{"Mixed Type Addition", "5 3.5 +", 8.5},
 
-		// Comparison operations
 		{"Equal Integers", "5 5 =", 1},
 		{"Not Equal Integers", "5 6 =", 0},
 		{"Less Than", "3 5 <", 1},
 		{"Greater Than", "5 3 >", 1},
 		{"Equal Floats", "3.14 3.14 =", 1},
 		{"Not Equal Floats", "3.14 3.15 =", 0},
+		{"Less Than Floats", "3.14 3.15 <", 1},
+		{"Greater Than Floats", "3.15 3.14 >", 1},
 		{"String Comparison", "(abc) (abd) <", 1},
 
-		// Logic operations
 		{"AND True", "1 1 &", 1},
 		{"AND False", "1 0 &", 0},
 		{"OR True", "1 0 |", 1},
 		{"OR False", "0 0 |", 0},
 
-		// Special operations
 		{"Null Check Empty String", "() _", 1},
 		{"Null Check Non-Empty String", "(a) _", 0},
 		{"Null Check Zero", "0 _", 1},
@@ -50,7 +48,6 @@ func TestExecutionMode(t *testing.T) {
 		{"Copy", "1 2 3 2 !", 2},
 		{"Delete", "1 2 3 2 $", 3},
 
-		// Stack operations
 		{"Push Multiple", "1 2 3 4 5", 5},
 		{"Size", "1 2 3 #", 3},
 
@@ -66,15 +63,12 @@ func TestExecutionMode(t *testing.T) {
 
 			calc := calculator.NewCalculator(cs, ds, is, os)
 
-			// Add commands to the command stream
 			for _, char := range tt.input {
 				calc.GetCommandStream().AddToBack(string(char))
 			}
 
-			// Run the calculator
 			calc.Run()
 
-			// Check the result
 			if !calc.GetDataStack().IsEmpty() {
 				result, err := calc.GetDataStack().Pop()
 				if err != nil {
