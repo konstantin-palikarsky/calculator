@@ -43,8 +43,7 @@ func (c *Calculator) InitializeRegisters() {
 	for ch := 'a'; ch <= 'z'; ch++ {
 		c.Registers[ch] = ""
 	}
-	c.Registers['a'] = "Welcome to the Postfix Calculator!"
-	c.GetCommandStream().AddToBack("a\"")
+	c.Registers['a'] = "(Welcome to the Postfix Calculator!)\""
 }
 
 func (c *Calculator) Run() {
@@ -54,6 +53,8 @@ func (c *Calculator) Run() {
 			c.OutputStream.WriteLine(fmt.Sprintf("Error: %v", err))
 			break
 		}
+
+		fmt.Printf("this is the stack contents", c.GetDataStack().String())
 
 		err = c.ExecuteCommand(command.(rune))
 		if err != nil {
